@@ -19,7 +19,7 @@ app.get('/', (_, res) => res.render('home/index'));
 app.listen(3000, () => {
   if (fs.existsSync(folder)) {
     fs.rmSync(folder, { recursive: true });
-    fs.mkdirSync(folder);
   }
+  fs.mkdirSync(folder);
   console.log('server is started http://localhost:3000');
 });
