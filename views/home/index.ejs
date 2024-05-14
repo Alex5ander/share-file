@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="pt-br" class="h-100">
+
+<%- include('../header') -%>
+
+  <body class="h-100">
+    <%- include('../navbar') -%>
+
+      <div class="container h-100">
+        <form enctype="multipart/form-data" method="post" onsubmit="send(event)">
+          <input id="fileinput" class="form-control my-4" type="file" multiple name="file" required
+            aria-label="file input" />
+          <button id="submit" disabled class="mb-4 btn btn-lg w-100 btn-primary focus-ring focus-ring-primary"
+            type="submit">Enviar
+            <i class="bi bi-upload"></i></button>
+        </form>
+
+        <ul class="list-group mb-4" id="filelist"></ul>
+
+        <div hidden id="progress" class="progress mb-4" role="progressbar" aria-label="Animated striped example"
+          aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="height:24px">
+          <div id="progressbar" class="progress-bar progress-bar-striped"></div>
+        </div>
+
+        <button hidden id="link" title="Copiar link" class="btn btn-lg w-100 btn-success focus-ring focus-ring-success"
+          type="button" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-custom-class="custom-tooltip"
+          data-bs-title="Copiar link" onmouseout="outFunc()">
+          <i class="bi bi-clipboard-fill"></i></button>
+      </div>
+
+      <%- include('../footer') -%>
+
+        <script>
+          const fileinput = document.getElementById('fileinput');
+          const filelist = document.getElementById('filelist');
+          const link = document.getElementById('link');
+          const progress = document.getElementById('progress');
+          const progressbar = document.getElementById('progressbar');
+          const btn = document.getElementById('submit');
+
+          const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+          const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+
+          const MB = 1048576;
+          const KB = 1024;
+
+          const getSize = (size) => size < KB ? size + "B" : size < MB ? (size / KB).toFixed(2) + "KB" : (size / (1024 * 1024)).toFixed(2) + "MB";
+
+          fileinput.onchange = e => {
+            btn.disabled = e.target.files.length == 0;
+            const files = e.target.files;
+            let html = "";
+            if (files.length) {
+              for (let file of files) {
+                const words = file.name.split('.');
+                const type = words[words.length - 1].toLowerCase();
+                html += `<li class="list-group-item">
+                  <i class='bi bi-filetype-${type}'></i> 
+                  ${file.name} ${getSize(file.size)}
+                  </li>`
+              }
+            }
+            filelist.innerHTML = html;
+          }
+          link.onclick = e => {
+            navigator.clipboard.writeText(e.target.dataset.value);
+            tooltipList[0]._config.title = "Link copiado!";
+            tooltipList[0].show();
+          }
+
+          const outFunc = () => tooltipList[0]._config.title = "Copiar link";
+
+          const send = (e) => {
+            e.preventDefault();
+
+            btn.disabled = true;
+            progress.hidden = false;
+
+            const body = new FormData(document.forms[0]);
+            const xmlhttp = new XMLHttpRequest();
+
+            xmlhttp.upload.onprogress = e => {
+              const percent = ((e.loaded / e.total) * 100).toFixed(0);
+              progressbar.style.width = percent + "%";
+              progressbar.innerText = percent + '%'
+              progress.ariaValueNow = percent;
+            }
+            xmlhttp.onreadystatechange = e => {
+              if (xmlhttp.status == 200 && xmlhttp.readyState == 4) {
+                link.dataset.value = window.location.href + "download/" + xmlhttp.responseText;
+                link.hidden = false;
+                fileinput.disabled = true;
+                progress.hidden = true;
+              }
+            }
+            xmlhttp.onerror = (_) => setTimeout(() => {
+              btn.disabled = false;
+              progress.hidden = true;
+              link.hidden = true;
+            }, 500);
+            xmlhttp.open('post', '/upload');
+            xmlhttp.send(body);
+          } 
+        </script>
+  </body>
+
+</html>

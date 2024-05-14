@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang='pt-br' class='h-100'>
+
+<%- include('../header.ejs') -%>
+
+  <body class='h-100'>
+    <%- include('../navbar.ejs') -%>
+
+      <div class='container p-4 h-100'>
+        <div class='card'>
+          <div class='card-body'>
+
+            <h5 class='card-title'>
+              <i class='bi bi-file-<%= files.length > 1 ? "zip" : "earmark" %>'></i>
+              <%= files[0].name %>
+            </h5>
+            <h6 class='card-subtitle mb-2 text-body-secondary'>
+              Total de arquivos: <%= files.length %> Tamanho: <%= size %>
+            </h6>
+
+            <ul class='list-group my-4'>
+
+              <% files.forEach(function (file) { %>
+                <li class='list-group-item'>
+                  <i class='bi bi-filetype-<%= file.type %>'></i> <%- file.name+' '+file.size %>
+                </li>
+                <% })%>
+            </ul>
+
+            <p class=' card-text text-center'>
+                    <i class='bi bi-exclamation-circle'></i>
+                    <%= files.length==1 ? 'O arquivo será apagado após o download.'
+                      : 'Os arquivos serão apagados após o download.' %>
+                      </p>
+
+                      <a href='<%=url %>' role='button' title='Download' class='btn btn-lg w-100 btn-success'
+                        download='download'>
+                        <i class='bi bi-download'></i>
+                      </a>
+          </div>
+        </div>
+
+
+      </div>
+      <%- include('../footer') -%>
+  </body>
+
+</html>
