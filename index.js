@@ -5,7 +5,7 @@ const path = require('path');
 const { upload, download, downloadPage } = require('./controllers/FileController.js');
 const folder = path.join(__dirname, 'uploads');
 
-const fileSize = 1048576 * 10;
+const fileSize = 1048576 * 50;
 
 const app = express();
 app.set('view engine', 'ejs');
